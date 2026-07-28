@@ -247,17 +247,97 @@ class TodoController extends StateNotifier<TodoState> {
   }
 
   Future<void> toggleComplete(String id) async {
+    final task = state.taskById(id);
+    if (task == null) return;
+    await setCompleted(id, !task.completed);
+  }
+
+  Future<void> setCompleted(String id, bool completed) async {
     final now = DateTime.now();
     state = state.copyWith(
       tasks: [
         for (final t in state.tasks)
           if (t.id == id)
-            t.copyWith(completed: !t.completed, updatedAt: now)
+            t.copyWith(completed: completed, updatedAt: now)
           else
             t,
       ],
     );
     await _persistNow();
+  }
+
+  Future<void> updateList({
+    required String id,
+    String? name,
+    String? iconKey,
+    int? colorValue,
+  }) async {
+    state = state.copyWith(
+      lists: [
+        for (final l in state.lists)
+          if (l.id == id)
+            l.copyWith(
+              name: name?.trim().isNotEmpty == true ? name!.trim() : null,
+              iconKey: iconKey,
+              colorValue: colorValue,
+            )
+          else
+            l,
+      ],
+    );
+    await _persistNow();
+  }
+
+  /// Reorder root tasks (or siblings under [parentId]) to match [orderedIds].
+  Future<void> reorderTasks({
+    required String listId,
+    String? parentId,
+    required List<String> orderedIds,
+  }) async {
+    final now = DateTime.now();
+    final orderMap = <String, int>{
+      for (var i = 0; i < orderedIds.length; i++) orderedIds[i]: i,
+    };
+    state = state.copyWith(
+      tasks: [
+        for (final t in state.tasks)
+          if (t.listId == listId &&
+              t.parentId == parentId &&
+              orderMap.containsKey(t.id))
+            t.copyWith(sortOrder: orderMap[t.id]!, updatedAt: now)
+          else
+            t,
+      ],
+    );
+    await _persistNow();
+  }
+
+  /// Snapshot for AI context (compact JSON-friendly map).
+  Map<String, dynamic> snapshotForAi({String? activeListId}) {
+    return {
+      'activeListId': activeListId,
+      'lists': [
+        for (final l in state.lists)
+          {
+            'id': l.id,
+            'name': l.name,
+            'iconKey': l.iconKey,
+            'color': '#${l.colorValue.toRadixString(16).padLeft(8, '0')}',
+            'taskCount': state.countForList(l.id),
+          },
+      ],
+      'tasks': [
+        for (final t in state.tasks)
+          {
+            'id': t.id,
+            'listId': t.listId,
+            'parentId': t.parentId,
+            'title': t.title,
+            'completed': t.completed,
+            'sortOrder': t.sortOrder,
+          },
+      ],
+    };
   }
 
   Future<void> deleteTask(String id) async {

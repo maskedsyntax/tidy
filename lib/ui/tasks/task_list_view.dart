@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tidy/core/icons/list_icons.dart';
+import 'package:tidy/core/shortcuts/platform_keys.dart';
 import 'package:tidy/core/theme/app_theme.dart';
 import 'package:tidy/domain/models/todo_list.dart';
+import 'package:tidy/state/settings_controller.dart';
 import 'package:tidy/state/todo_controller.dart';
 import 'package:tidy/state/ui_controllers.dart';
+import 'package:tidy/ui/common/app_icon_button.dart';
 import 'package:tidy/ui/tasks/add_task_field.dart';
 import 'package:tidy/ui/tasks/task_row.dart';
 
@@ -17,6 +20,8 @@ class TaskListView extends ConsumerWidget {
     final todo = ref.watch(todoControllerProvider);
     final activeId = ref.watch(activeListIdProvider);
     final search = ref.watch(searchQueryProvider);
+    final layout = ref.watch(settingsControllerProvider);
+    final settingsCtrl = ref.read(settingsControllerProvider.notifier);
 
     if (!todo.loaded) {
       return const Center(
@@ -41,21 +46,51 @@ class TaskListView extends ConsumerWidget {
         ? theme.textPrimary
         : (todo.listById(activeId)?.color ?? theme.textPrimary);
 
+    final bothHidden = !layout.listsPaneOpen && !layout.chatPaneOpen;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Header
         Padding(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
           child: Row(
             children: [
+              // Only show "open lists" when the lists pane is hidden
+              if (!layout.listsPaneOpen) ...[
+                AppIconButton(
+                  icon: Icons.view_sidebar_outlined,
+                  tooltip: 'Show lists (${shortcutLabel('B')})',
+                  onPressed: () => settingsCtrl.setListsPaneOpen(true),
+                ),
+                const SizedBox(width: 4),
+              ],
+              AppIconButton(
+                icon: bothHidden
+                    ? Icons.view_column_outlined
+                    : Icons.center_focus_strong_outlined,
+                tooltip: bothHidden
+                    ? 'Full mode (${shortcutLabel('⇧.')})'
+                    : 'Focus mode — tasks only (${shortcutLabel('.')})',
+                active: bothHidden,
+                onPressed: () {
+                  if (bothHidden) {
+                    settingsCtrl.enterFullMode();
+                  } else {
+                    settingsCtrl.enterFocusMode();
+                  }
+                },
+              ),
+              const SizedBox(width: 12),
               Icon(iconForKey(titleIcon), size: 18, color: titleColor),
               const SizedBox(width: 8),
-              Text(
-                titleLabel,
-                style: theme.textTheme.titleLarge,
+              Expanded(
+                child: Text(
+                  titleLabel,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.titleLarge,
+                ),
               ),
-              const Spacer(),
+              const SizedBox(width: 16),
               SizedBox(
                 width: 200,
                 child: _SearchField(
@@ -80,7 +115,7 @@ class TaskListView extends ConsumerWidget {
                   )
                 : ListView.builder(
                     key: ValueKey('list-$activeId'),
-                    padding: const EdgeInsets.only(top: 4, bottom: 8),
+                    padding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
                     itemCount: rows.length,
                     itemBuilder: (context, index) {
                       final row = rows[index];
@@ -97,7 +132,7 @@ class TaskListView extends ConsumerWidget {
                           if (showDivider)
                             Padding(
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
+                                horizontal: 16,
                                 vertical: 8,
                               ),
                               child: Divider(

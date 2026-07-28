@@ -43,8 +43,8 @@ class _AddTaskFieldState extends ConsumerState<AddTaskField> {
       onExit: (_) => setState(() => _hover = false),
       child: AnimatedContainer(
         duration: AppDurations.fast,
-        margin: const EdgeInsets.fromLTRB(16, 4, 16, 16),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        margin: const EdgeInsets.fromLTRB(20, 4, 20, 16),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
         decoration: BoxDecoration(
           color: _hover || _focus.hasFocus
               ? theme.hoverBg

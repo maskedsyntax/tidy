@@ -4,8 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tidy/core/shortcuts/platform_keys.dart';
 import 'package:tidy/core/theme/app_theme.dart';
 import 'package:tidy/domain/models/todo_list.dart';
+import 'package:tidy/state/settings_controller.dart';
 import 'package:tidy/state/todo_controller.dart';
 import 'package:tidy/state/ui_controllers.dart';
+import 'package:tidy/ui/chat/chat_pane.dart';
+import 'package:tidy/ui/common/ai_mark.dart';
+import 'package:tidy/ui/common/pane_toggle.dart';
 import 'package:tidy/ui/dialogs/new_list_dialog.dart';
 import 'package:tidy/ui/palette/command_palette.dart';
 import 'package:tidy/ui/sidebar/sidebar.dart';
@@ -17,6 +21,22 @@ class OpenPaletteIntent extends Intent {
 
 class NewListIntent extends Intent {
   const NewListIntent();
+}
+
+class ToggleListsIntent extends Intent {
+  const ToggleListsIntent();
+}
+
+class ToggleChatIntent extends Intent {
+  const ToggleChatIntent();
+}
+
+class FocusModeIntent extends Intent {
+  const FocusModeIntent();
+}
+
+class FullModeIntent extends Intent {
+  const FullModeIntent();
 }
 
 class GoToListIntent extends Intent {
@@ -35,9 +55,6 @@ class _AppShellState extends ConsumerState<AppShell> {
   @override
   void initState() {
     super.initState();
-    // Global handler so shortcuts work even when a TextField has focus.
-    // Flutter's Shortcuts widget often fails to fire for Meta/Control combos
-    // while an EditableText is focused.
     HardwareKeyboard.instance.addHandler(_handleGlobalKey);
   }
 
@@ -60,17 +77,41 @@ class _AppShellState extends ConsumerState<AppShell> {
 
     final key = event.logicalKey;
     final lists = ref.read(todoControllerProvider).lists;
+    final settings = ref.read(settingsControllerProvider.notifier);
+    final shift = HardwareKeyboard.instance.isShiftPressed;
 
-    // ⌘/Ctrl+K — toggle command palette
+    // ⌘/Ctrl+K — command palette
     if (key == LogicalKeyboardKey.keyK) {
       final open = ref.read(commandPaletteOpenProvider);
       ref.read(commandPaletteOpenProvider.notifier).state = !open;
       return true;
     }
 
-    // ⌘/Ctrl+N — new list (ignore while palette filter field is typing… still ok)
+    // ⌘/Ctrl+B — toggle lists sidebar
+    if (key == LogicalKeyboardKey.keyB) {
+      settings.toggleListsPane();
+      return true;
+    }
+
+    // ⌘/Ctrl+J — toggle AI chat
+    if (key == LogicalKeyboardKey.keyJ) {
+      settings.toggleChatPane();
+      return true;
+    }
+
+    // ⌘/Ctrl+. — focus mode (hide both)
+    // ⌘/Ctrl+Shift+. — full mode (show both)
+    if (key == LogicalKeyboardKey.period) {
+      if (shift) {
+        settings.enterFullMode();
+      } else {
+        settings.enterFocusMode();
+      }
+      return true;
+    }
+
+    // ⌘/Ctrl+N — new list
     if (key == LogicalKeyboardKey.keyN) {
-      // Don't open while a dialog might already be up; still safe to invoke.
       if (ref.read(commandPaletteOpenProvider)) {
         ref.read(commandPaletteOpenProvider.notifier).state = false;
       }
@@ -110,7 +151,6 @@ class _AppShellState extends ConsumerState<AppShell> {
       LogicalKeyboardKey.digit8,
       LogicalKeyboardKey.digit9,
     ];
-    // Also accept numpad
     const numpad = [
       LogicalKeyboardKey.numpad1,
       LogicalKeyboardKey.numpad2,
@@ -133,12 +173,20 @@ class _AppShellState extends ConsumerState<AppShell> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final paletteOpen = ref.watch(commandPaletteOpenProvider);
+    final layout = ref.watch(settingsControllerProvider);
+    final listsOpen = layout.listsPaneOpen;
+    final chatOpen = layout.chatPaneOpen;
     final lists = ref.watch(todoControllerProvider).lists;
+    final settingsCtrl = ref.read(settingsControllerProvider.notifier);
 
-    // Keep Shortcuts/Actions as a secondary path (e.g. for semantics / tests).
     return Shortcuts(
       shortcuts: <ShortcutActivator, Intent>{
         primaryActivator(LogicalKeyboardKey.keyK): const OpenPaletteIntent(),
+        primaryActivator(LogicalKeyboardKey.keyB): const ToggleListsIntent(),
+        primaryActivator(LogicalKeyboardKey.keyJ): const ToggleChatIntent(),
+        primaryActivator(LogicalKeyboardKey.period): const FocusModeIntent(),
+        primaryActivator(LogicalKeyboardKey.period, shift: true):
+            const FullModeIntent(),
         primaryActivator(LogicalKeyboardKey.keyN): const NewListIntent(),
         primaryActivator(LogicalKeyboardKey.digit1): const GoToListIntent(0),
         primaryActivator(LogicalKeyboardKey.digit2): const GoToListIntent(1),
@@ -156,6 +204,30 @@ class _AppShellState extends ConsumerState<AppShell> {
             onInvoke: (_) {
               final open = ref.read(commandPaletteOpenProvider);
               ref.read(commandPaletteOpenProvider.notifier).state = !open;
+              return null;
+            },
+          ),
+          ToggleListsIntent: CallbackAction<ToggleListsIntent>(
+            onInvoke: (_) {
+              settingsCtrl.toggleListsPane();
+              return null;
+            },
+          ),
+          ToggleChatIntent: CallbackAction<ToggleChatIntent>(
+            onInvoke: (_) {
+              settingsCtrl.toggleChatPane();
+              return null;
+            },
+          ),
+          FocusModeIntent: CallbackAction<FocusModeIntent>(
+            onInvoke: (_) {
+              settingsCtrl.enterFocusMode();
+              return null;
+            },
+          ),
+          FullModeIntent: CallbackAction<FullModeIntent>(
+            onInvoke: (_) {
+              settingsCtrl.enterFullMode();
               return null;
             },
           ),
@@ -187,10 +259,23 @@ class _AppShellState extends ConsumerState<AppShell> {
                 backgroundColor: theme.appBg,
                 body: Row(
                   children: [
-                    const AppSidebar(),
+                    SlidingPane(
+                      open: listsOpen,
+                      width: 256,
+                      alignment: Alignment.centerLeft,
+                      child: const Padding(
+                        padding: EdgeInsets.fromLTRB(10, 10, 6, 10),
+                        child: AppSidebar(),
+                      ),
+                    ),
                     Expanded(
                       child: Container(
-                        margin: const EdgeInsets.all(10),
+                        margin: EdgeInsets.fromLTRB(
+                          listsOpen ? 0 : 10,
+                          10,
+                          chatOpen ? 6 : 10,
+                          10,
+                        ),
                         decoration: BoxDecoration(
                           color: theme.surfaceBg,
                           borderRadius: BorderRadius.circular(AppRadii.xl),
@@ -209,11 +294,90 @@ class _AppShellState extends ConsumerState<AppShell> {
                         child: const TaskListView(),
                       ),
                     ),
+                    SlidingPane(
+                      open: chatOpen,
+                      width: 340,
+                      alignment: Alignment.centerRight,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 10, 10, 10),
+                        child: ChatPane(
+                          onClose: () => settingsCtrl.setChatPaneOpen(false),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
+              // Floating AI launcher — only when chat pane is closed
+              if (!chatOpen)
+                Positioned(
+                  right: 22,
+                  bottom: 22,
+                  child: _AiFab(
+                    onPressed: () => settingsCtrl.setChatPaneOpen(true),
+                  ),
+                ),
               if (paletteOpen) const CommandPalette(),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AiFab extends StatefulWidget {
+  const _AiFab({required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  State<_AiFab> createState() => _AiFabState();
+}
+
+class _AiFabState extends State<_AiFab> {
+  bool _hover = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Tooltip(
+      message: 'Assistant (${shortcutLabel('J')})',
+      child: MouseRegion(
+        onEnter: (_) => setState(() => _hover = true),
+        onExit: (_) => setState(() => _hover = false),
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          onTap: widget.onPressed,
+          child: AnimatedScale(
+            scale: _hover ? 1.05 : 1.0,
+            duration: AppDurations.fast,
+            child: AnimatedContainer(
+              duration: AppDurations.fast,
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: (theme.isDark
+                            ? const Color(0xFF6B8CFF)
+                            : AppColors.checkbox)
+                        .withValues(alpha: theme.isDark ? 0.25 : 0.22),
+                    blurRadius: _hover ? 20 : 14,
+                    offset: const Offset(0, 5),
+                  ),
+                  BoxShadow(
+                    color: Colors.black.withValues(
+                      alpha: theme.isDark ? 0.4 : 0.1,
+                    ),
+                    blurRadius: 10,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: const AiMark(size: 56, filled: true),
+            ),
           ),
         ),
       ),

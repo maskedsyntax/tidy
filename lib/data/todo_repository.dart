@@ -1,7 +1,6 @@
 import 'package:tidy/core/persistence/json_store.dart';
 import 'package:tidy/domain/models/task.dart';
 import 'package:tidy/domain/models/todo_list.dart';
-import 'package:tidy/seed/demo_data.dart';
 
 class TodoSnapshot {
   const TodoSnapshot({required this.lists, required this.tasks});
@@ -11,17 +10,16 @@ class TodoSnapshot {
 }
 
 class TodoRepository {
-  TodoRepository({JsonStore? store}) : _store = store ?? JsonStore(fileName: 'todos.json');
+  TodoRepository({JsonStore? store})
+      : _store = store ?? JsonStore(fileName: 'todos.json');
 
   final JsonStore _store;
 
   Future<TodoSnapshot> load() async {
     final data = await _store.read();
     if (data == null) {
-      final lists = DemoData.lists();
-      final tasks = DemoData.tasks();
-      await save(lists: lists, tasks: tasks);
-      return TodoSnapshot(lists: lists, tasks: tasks);
+      // Fresh install: empty workspace (no seed/demo data).
+      return const TodoSnapshot(lists: [], tasks: []);
     }
     try {
       final lists = (data['lists'] as List<dynamic>)
@@ -33,10 +31,8 @@ class TodoRepository {
           .toList();
       return TodoSnapshot(lists: lists, tasks: tasks);
     } catch (_) {
-      final lists = DemoData.lists();
-      final tasks = DemoData.tasks();
-      await save(lists: lists, tasks: tasks);
-      return TodoSnapshot(lists: lists, tasks: tasks);
+      // Corrupt file: start empty rather than re-seeding demo content.
+      return const TodoSnapshot(lists: [], tasks: []);
     }
   }
 

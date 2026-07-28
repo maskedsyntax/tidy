@@ -16,9 +16,13 @@ class SettingsController extends StateNotifier<AppSettings> {
     loaded = true;
   }
 
-  Future<void> setThemeMode(ThemeMode mode) async {
-    state = state.copyWith(themeMode: mode);
+  Future<void> _save(AppSettings next) async {
+    state = next;
     await _repo.save(state);
+  }
+
+  Future<void> setThemeMode(ThemeMode mode) async {
+    await _save(state.copyWith(themeMode: mode));
   }
 
   Future<void> cycleTheme() async {
@@ -28,6 +32,32 @@ class SettingsController extends StateNotifier<AppSettings> {
       ThemeMode.dark => ThemeMode.system,
     };
     await setThemeMode(next);
+  }
+
+  Future<void> setListsPaneOpen(bool open) async {
+    await _save(state.copyWith(listsPaneOpen: open));
+  }
+
+  Future<void> setChatPaneOpen(bool open) async {
+    await _save(state.copyWith(chatPaneOpen: open));
+  }
+
+  Future<void> toggleListsPane() async {
+    await setListsPaneOpen(!state.listsPaneOpen);
+  }
+
+  Future<void> toggleChatPane() async {
+    await setChatPaneOpen(!state.chatPaneOpen);
+  }
+
+  /// Hide both side panes — pure tasks ("pen and paper").
+  Future<void> enterFocusMode() async {
+    await _save(state.copyWith(listsPaneOpen: false, chatPaneOpen: false));
+  }
+
+  /// Show both side panes — full workspace.
+  Future<void> enterFullMode() async {
+    await _save(state.copyWith(listsPaneOpen: true, chatPaneOpen: true));
   }
 }
 

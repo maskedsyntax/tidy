@@ -7,7 +7,7 @@ import 'package:tidy/domain/models/todo_list.dart';
 import 'package:tidy/state/settings_controller.dart';
 import 'package:tidy/state/todo_controller.dart';
 import 'package:tidy/state/ui_controllers.dart';
-import 'package:tidy/ui/common/hover_surface.dart';
+import 'package:tidy/ui/common/app_icon_button.dart';
 import 'package:tidy/ui/dialogs/new_list_dialog.dart';
 import 'package:tidy/ui/dialogs/settings_dialog.dart';
 
@@ -22,51 +22,56 @@ class AppSidebar extends ConsumerWidget {
     final settings = ref.watch(settingsControllerProvider);
 
     return Container(
-      width: 240,
       decoration: BoxDecoration(
-        color: theme.sidebarBg,
-        border: Border(
-          right: BorderSide(color: theme.borderColor, width: 1),
-        ),
+        color: theme.surfaceBg,
+        borderRadius: BorderRadius.circular(AppRadii.xl),
+        border: Border.all(color: theme.borderColor),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: theme.isDark ? 0.25 : 0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
+      clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const SizedBox(height: 14),
-          // Header: title + command palette
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14),
+            padding: const EdgeInsets.fromLTRB(14, 10, 8, 10),
             child: Row(
               children: [
-                Text(
-                  'Todo',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: -0.3,
-                  ),
-                ),
+                Text('Lists', style: theme.textTheme.titleMedium),
                 const Spacer(),
-                _IconChip(
-                  tooltip: 'Command palette (${shortcutLabel('K')})',
+                AppIconButton(
+                  icon: Icons.terminal_rounded,
                   label: shortcutLabel('K'),
-                  onTap: () =>
+                  tooltip: 'Command palette (${shortcutLabel('K')})',
+                  onPressed: () =>
                       ref.read(commandPaletteOpenProvider.notifier).state = true,
+                ),
+                const SizedBox(width: 2),
+                AppIconButton(
+                  icon: Icons.add_rounded,
+                  tooltip: 'New list (${shortcutLabel('N')})',
+                  onPressed: () => showNewListDialog(context, ref),
+                ),
+                const SizedBox(width: 2),
+                AppIconButton(
+                  icon: Icons.keyboard_double_arrow_left_rounded,
+                  tooltip: 'Hide lists (${shortcutLabel('B')})',
+                  onPressed: () => ref
+                      .read(settingsControllerProvider.notifier)
+                      .setListsPaneOpen(false),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 20),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 18),
-            child: Text(
-              'LISTS',
-              style: theme.textTheme.labelSmall,
-            ),
-          ),
-          const SizedBox(height: 6),
+          Divider(height: 1, color: theme.borderColor),
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
+              padding: const EdgeInsets.fromLTRB(10, 10, 10, 8),
               children: [
                 _ListNavItem(
                   icon: Icons.all_inclusive_rounded,
@@ -74,9 +79,8 @@ class AppSidebar extends ConsumerWidget {
                   count: todo.countForList(kAllTasksListId),
                   selected: activeId == kAllTasksListId,
                   color: theme.textPrimary,
-                  onTap: () =>
-                      ref.read(activeListIdProvider.notifier).state =
-                          kAllTasksListId,
+                  onTap: () => ref.read(activeListIdProvider.notifier).state =
+                      kAllTasksListId,
                 ),
                 for (final list in todo.lists)
                   _ListNavItem(
@@ -89,46 +93,25 @@ class AppSidebar extends ConsumerWidget {
                         ref.read(activeListIdProvider.notifier).state = list.id,
                     onDelete: () => _confirmDeleteList(context, ref, list),
                   ),
-                const SizedBox(height: 4),
-                HoverSurface(
-                  onTap: () => showNewListDialog(context, ref),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                  child: Row(
-                    children: [
-                      Icon(Icons.add_rounded,
-                          size: 16, color: theme.textMuted),
-                      const SizedBox(width: 8),
-                      Text(
-                        'New List',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: theme.textMuted,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
               ],
             ),
           ),
-          // Footer
           Padding(
-            padding: const EdgeInsets.fromLTRB(12, 8, 12, 14),
+            padding: const EdgeInsets.fromLTRB(10, 6, 10, 12),
             child: Row(
               children: [
-                _FooterIcon(
+                AppIconButton(
                   icon: Icons.settings_outlined,
                   tooltip: 'Settings',
-                  onTap: () => showSettingsDialog(context, ref),
+                  onPressed: () => showSettingsDialog(context, ref),
                 ),
-                const SizedBox(width: 4),
-                _FooterIcon(
+                const SizedBox(width: 2),
+                AppIconButton(
                   icon: _themeIcon(settings.themeMode),
                   tooltip: _themeTooltip(settings.themeMode),
-                  onTap: () =>
-                      ref.read(settingsControllerProvider.notifier).cycleTheme(),
+                  onPressed: () => ref
+                      .read(settingsControllerProvider.notifier)
+                      .cycleTheme(),
                 ),
               ],
             ),
@@ -276,63 +259,5 @@ class _ListNavItemState extends State<_ListNavItem> {
         ),
       ),
     );
-  }
-}
-
-class _IconChip extends StatelessWidget {
-  const _IconChip({
-    required this.label,
-    required this.onTap,
-    this.tooltip,
-  });
-
-  final String label;
-  final VoidCallback onTap;
-  final String? tooltip;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final child = HoverSurface(
-      onTap: onTap,
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
-      borderRadius: BorderRadius.circular(6),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-          color: theme.textMuted,
-          letterSpacing: -0.2,
-        ),
-      ),
-    );
-    if (tooltip == null) return child;
-    return Tooltip(message: tooltip!, child: child);
-  }
-}
-
-class _FooterIcon extends StatelessWidget {
-  const _FooterIcon({
-    required this.icon,
-    required this.onTap,
-    this.tooltip,
-  });
-
-  final IconData icon;
-  final VoidCallback onTap;
-  final String? tooltip;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final child = HoverSurface(
-      onTap: onTap,
-      padding: const EdgeInsets.all(8),
-      borderRadius: BorderRadius.circular(8),
-      child: Icon(icon, size: 18, color: theme.textMuted),
-    );
-    if (tooltip == null) return child;
-    return Tooltip(message: tooltip!, child: child);
   }
 }

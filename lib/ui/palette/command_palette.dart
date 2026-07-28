@@ -160,6 +160,50 @@ class _CommandPaletteState extends ConsumerState<CommandPalette>
         },
       ),
       _Command(
+        id: 'action-toggle-lists',
+        section: _CmdSection.actions,
+        label: 'Toggle Lists',
+        icon: Icons.view_sidebar_outlined,
+        shortcut: shortcutLabel('B'),
+        run: () {
+          ref.read(settingsControllerProvider.notifier).toggleListsPane();
+          _close();
+        },
+      ),
+      _Command(
+        id: 'action-toggle-assistant',
+        section: _CmdSection.actions,
+        label: 'Toggle Assistant',
+        icon: Icons.auto_awesome_rounded,
+        shortcut: shortcutLabel('J'),
+        run: () {
+          ref.read(settingsControllerProvider.notifier).toggleChatPane();
+          _close();
+        },
+      ),
+      _Command(
+        id: 'action-focus-mode',
+        section: _CmdSection.actions,
+        label: 'Focus Mode (tasks only)',
+        icon: Icons.center_focus_strong_outlined,
+        shortcut: shortcutLabel('.'),
+        run: () {
+          ref.read(settingsControllerProvider.notifier).enterFocusMode();
+          _close();
+        },
+      ),
+      _Command(
+        id: 'action-full-mode',
+        section: _CmdSection.actions,
+        label: 'Full Mode (all panes)',
+        icon: Icons.view_column_outlined,
+        shortcut: isApple ? '⌘⇧.' : 'Ctrl+⇧.',
+        run: () {
+          ref.read(settingsControllerProvider.notifier).enterFullMode();
+          _close();
+        },
+      ),
+      _Command(
         id: 'action-settings',
         section: _CmdSection.actions,
         label: 'Settings',

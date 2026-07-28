@@ -150,10 +150,10 @@ class _TaskRowState extends ConsumerState<TaskRow> {
       onExit: (_) => setState(() => _hover = false),
       child: AnimatedContainer(
         duration: AppDurations.fast,
-        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
+        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 1),
         padding: EdgeInsets.only(
-          left: 12.0 + depth * 24.0,
-          right: 8,
+          left: 16.0 + depth * 24.0,
+          right: 12,
           top: 4,
           bottom: 4,
         ),
