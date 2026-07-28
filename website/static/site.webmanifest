@@ -1,0 +1,24 @@
+{
+  "name": "Tidy",
+  "short_name": "Tidy",
+  "description": "As minimal as pen and paper. As maximal as AI can go. Desktop todos for macOS and Linux.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#E8E2D8",
+  "theme_color": "#E8E2D8",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "256x256",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
