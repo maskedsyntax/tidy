@@ -44,8 +44,8 @@
 			<div>
 				<p class="col-title">Platforms</p>
 				<ul>
-					<li>macOS</li>
-					<li>Linux</li>
+					<li>macOS <span class="soon">soon</span></li>
+					<li>Linux <span class="soon">soon</span></li>
 				</ul>
 			</div>
 		</nav>
@@ -133,6 +133,16 @@
 
 	a:hover {
 		color: var(--text);
+	}
+
+	.soon {
+		margin-left: 0.15rem;
+		padding: 0.05rem 0.35rem;
+		border-radius: var(--radius-pill);
+		background: color-mix(in srgb, var(--dot-blue) 14%, transparent);
+		font-size: 0.7rem;
+		font-weight: 600;
+		color: var(--accent-ink);
 	}
 
 	.bottom {

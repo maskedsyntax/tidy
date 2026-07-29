@@ -1,6 +1,6 @@
 # Tidy website
 
-Marketing site for [Tidy](https://github.com/maskedsyntax/tidy) — built with **SvelteKit**, fully **prerendered** for SEO and static hosting.
+Marketing site for [Tidy](https://github.com/maskedsyntax/tidy) built with **SvelteKit**, fully **prerendered** for SEO and static hosting.
 
 ## Positioning
 
@@ -46,6 +46,6 @@ Output is static under `website/build/` (via `@sveltejs/adapter-static`).
 
 Any static host works:
 
-- **GitHub Pages** — publish `website/build`
-- **Cloudflare Pages / Netlify / Vercel** — root `website`, build `npm run build`, output `build`
-- **Custom** — serve `build/` over HTTPS with compression enabled (adapter also emits `.gz` / `.br` when supported)
+- **GitHub Pages**: publish `website/build`
+- **Cloudflare Pages / Netlify / Vercel**: root `website`, build `npm run build`, output `build`
+- **Custom**: serve `build/` over HTTPS with compression enabled (adapter also emits `.gz` / `.br` when supported)

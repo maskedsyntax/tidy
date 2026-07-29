@@ -15,7 +15,7 @@
 			id: 'paper',
 			label: 'Pen & paper',
 			title: 'Quiet by default',
-			body: 'Open Tidy and write. No account, no feed — a calm list on your machine. Collapse into focus mode when you want silence.',
+			body: 'Open Tidy and write. No account, no feed, just a calm list on your machine. Collapse into focus mode when you want silence.',
 			points: ['Type a task, check it off', 'Focus mode (⌘/Ctrl+.)', 'Local JSON · no signup'],
 			dot: 'var(--dot-sage)'
 		},
@@ -31,7 +31,7 @@
 			id: 'ai',
 			label: 'Full AI',
 			title: 'Maximal on demand',
-			body: 'Bring your own key. Ask in plain language — Tidy creates lists, nests subtasks, reorders, and cleans up for real.',
+			body: 'Bring your own key. Ask in plain language and Tidy creates lists, nests subtasks, reorders, and cleans up for real.',
 			points: [
 				'Assistant pane (⌘/Ctrl+J)',
 				'Full mode (⌘/Ctrl+⇧.)',
@@ -50,7 +50,7 @@
 		<div class="intro">
 			<h2 id="spectrum-heading">Your intensity. Same app.</h2>
 			<p class="lead">
-				Tidy scales from pen-and-paper simplicity to full AI control — without forcing you into
+				Tidy scales from pen-and-paper simplicity to full AI control, without forcing you into
 				either.
 			</p>
 		</div>
@@ -100,7 +100,7 @@
 
 <style>
 	.spectrum {
-		/* Slightly deeper sand band — still part of the table */
+		/* Slightly deeper sand band, still part of the table */
 		background: color-mix(in srgb, var(--sand) 35%, transparent);
 		border-block: 1px solid color-mix(in srgb, var(--sand-deep) 35%, transparent);
 	}

@@ -7,7 +7,7 @@
 	import { site } from '$lib/seo';
 
 	const prompts = [
-		'Plan a Travel list — pack, flights, hotel.',
+		'Plan a Travel list: pack, flights, hotel.',
 		'Move gym tasks to Personal and put legs first.',
 		'Mark design polish done and delete the spike.',
 		'What’s on my plate across all lists?',
@@ -18,7 +18,7 @@
 	const features = [
 		{
 			title: 'Multiple lists',
-			body: 'Work, Personal, Learning — or whatever you name. Soft colored dots keep context obvious.',
+			body: 'Work, Personal, Learning, or whatever you name. Soft colored dots keep context obvious.',
 			dot: 'var(--dot-blue)'
 		},
 		{
@@ -33,7 +33,7 @@
 		},
 		{
 			title: 'Command palette',
-			body: '⌘K / Ctrl+K to switch themes, jump lists, create lists, and open settings — instantly.',
+			body: '⌘K / Ctrl+K switches themes, jumps lists, creates lists, and opens settings instantly.',
 			dot: 'var(--dot-blue)'
 		},
 		{
@@ -54,6 +54,7 @@
 		{ keys: ['⌘/Ctrl', 'J'], action: 'Toggle AI assistant' },
 		{ keys: ['⌘/Ctrl', '.'], action: 'Focus mode (tasks only)' },
 		{ keys: ['⌘/Ctrl', '⇧', '.'], action: 'Full mode (all panes)' },
+		{ keys: ['⌘/Ctrl', 'N'], action: 'New list' },
 		{ keys: ['⌘/Ctrl', '1…9'], action: 'Switch list' },
 		{ keys: ['Tab'], action: 'Indent subtask' },
 		{ keys: ['Shift', 'Tab'], action: 'Outdent' }
@@ -75,16 +76,16 @@
 			a: 'Bring your own key for Groq, xAI (Grok), OpenAI, OpenRouter, or any OpenAI-compatible base URL and model.'
 		},
 		{
-			q: 'Does AI change real tasks — or only chat?',
-			a: 'Real changes. The assistant can create and update lists and tasks, nest subtasks, move, reorder, complete, and delete — then confirms in plain language.'
+			q: 'Does AI change real tasks, or only chat?',
+			a: 'Real changes. The assistant can create and update lists and tasks, nest subtasks, move, reorder, complete, and delete. Then it confirms in plain language.'
 		},
 		{
 			q: 'Which platforms are supported?',
-			a: 'macOS and Linux desktop builds, powered by Flutter.'
+			a: 'macOS and Linux, powered by Flutter. Desktop builds are coming soon.'
 		},
 		{
 			q: 'Is Tidy open source?',
-			a: 'Yes — MIT licensed. Inspect the code, fork it, ship your own builds.'
+			a: 'Yes. MIT licensed. Inspect the code, fork it, ship your own builds.'
 		}
 	];
 </script>
@@ -94,7 +95,7 @@
 <Header />
 
 <main id="main">
-	<!-- Hero: product-photo style — logo as the object, soft table light -->
+	<!-- Hero: centered copy sitting above the live app mock -->
 	<section class="hero section" aria-labelledby="hero-heading">
 		<div class="container hero-inner">
 			<div class="hero-copy">
@@ -104,11 +105,11 @@
 					As maximal as AI can go.
 				</h1>
 				<p class="lead hero-lead">
-					A quiet, local-first todo app. Use it like a notebook — or plug in your own AI key and
+					A quiet, local-first todo app. Use it like a notebook, or plug in your own AI key and
 					manage lists in plain language.
 				</p>
 				<div class="hero-cta">
-					<a class="btn btn-primary" href="#download">Download Tidy</a>
+					<a class="btn btn-primary" href="#download">Get Tidy</a>
 					<a class="btn btn-secondary" href="#spectrum">See the spectrum</a>
 				</div>
 				<p class="hero-meta">
@@ -135,7 +136,8 @@
 	<section id="ai" class="section" aria-labelledby="ai-heading">
 		<div class="container">
 			<div class="ai-head">
-				<h2 id="ai-heading">Not just chat — real workspace control</h2>
+				<img class="ai-mark" src="/ai-mark.png" alt="" width="52" height="52" />
+				<h2 id="ai-heading">Not just chat. Real workspace control.</h2>
 				<p class="lead">
 					Most “AI todos” answer questions. Tidy’s assistant reads your workspace and makes real
 					changes: create lists, nest subtasks, reorder, complete, and clean up.
@@ -239,41 +241,19 @@
 	<section id="download" class="section download" aria-labelledby="download-heading">
 		<div class="container download-card card">
 			<div class="download-copy">
+				<p class="soon">Coming soon</p>
 				<h2 id="download-heading">macOS and Linux</h2>
 				<p class="lead">
-					Build from source today, or grab releases when published. Flutter desktop — polished for
-					the platforms that live on your desk.
+					Desktop builds are on the way. Flutter desktop, polished for the platforms that live on
+					your desk.
 				</p>
+
 				<div class="download-actions">
 					<a class="btn btn-primary" href={site.github} rel="noopener noreferrer" target="_blank">
 						View on GitHub
 					</a>
-					<a
-						class="btn btn-secondary"
-						href="{site.github}#run"
-						rel="noopener noreferrer"
-						target="_blank"
-					>
-						Build instructions
-					</a>
 				</div>
 			</div>
-			<ol class="steps">
-				<li>
-					<strong>Clone</strong>
-					<code>git clone {site.github}.git</code>
-				</li>
-				<li>
-					<strong>Run</strong>
-					<code>flutter run -d macos</code>
-					<span class="or">or</span>
-					<code>-d linux</code>
-				</li>
-				<li>
-					<strong>Optional AI</strong>
-					<span>Settings → AI → add your key</span>
-				</li>
-			</ol>
 		</div>
 	</section>
 
@@ -376,6 +356,14 @@
 		margin-bottom: 1.75rem;
 	}
 
+	.ai-mark {
+		width: 3.1rem;
+		height: 3.1rem;
+		border-radius: 50%;
+		margin-bottom: 0.9rem;
+		box-shadow: 0 4px 14px rgba(91, 138, 196, 0.24);
+	}
+
 	.ai-head h2 {
 		margin: 0 0 0.7rem;
 	}
@@ -472,7 +460,7 @@
 		margin: 0;
 	}
 
-	/* List of features — not a generic 3×2 SaaS card grid */
+	/* List of features, not a generic 3×2 SaaS card grid */
 	.feature-list {
 		list-style: none;
 		margin: 0 0 1.5rem;
@@ -558,16 +546,14 @@
 	}
 
 	.download-card {
-		padding: clamp(1.4rem, 3.5vw, 2.1rem);
-		display: grid;
-		gap: 1.75rem;
+		max-width: 44rem;
+		padding: clamp(2rem, 4.5vw, 2.9rem) clamp(1.5rem, 4vw, 2.5rem);
+		text-align: center;
 	}
 
-	@media (min-width: 860px) {
-		.download-card {
-			grid-template-columns: 1.05fr 0.95fr;
-			align-items: center;
-		}
+	.download-copy {
+		max-width: 30rem;
+		margin-inline: auto;
 	}
 
 	.download-copy h2 {
@@ -575,77 +561,37 @@
 	}
 
 	.download-copy .lead {
-		margin: 0 0 1.15rem;
+		margin: 0 auto 1.45rem;
+	}
+
+	.soon {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		margin: 0 0 0.9rem;
+		padding: 0.3rem 0.7rem;
+		border-radius: var(--radius-pill);
+		background: color-mix(in srgb, var(--dot-blue) 14%, transparent);
+		border: 1px solid color-mix(in srgb, var(--dot-blue) 30%, transparent);
+		font-size: 0.78rem;
+		font-weight: 600;
+		letter-spacing: 0.01em;
+		color: var(--accent-ink);
+	}
+
+	.soon::before {
+		content: '';
+		width: 0.4rem;
+		height: 0.4rem;
+		border-radius: 50%;
+		background: var(--dot-blue);
 	}
 
 	.download-actions {
 		display: flex;
 		flex-wrap: wrap;
+		justify-content: center;
 		gap: 0.65rem;
-	}
-
-	.steps {
-		margin: 0;
-		padding: 1.2rem 1.25rem;
-		list-style: none;
-		counter-reset: step;
-		background: var(--clay);
-		border: 1px solid color-mix(in srgb, var(--sand-deep) 32%, transparent);
-		border-radius: var(--radius-md);
-		display: grid;
-		gap: 1rem;
-	}
-
-	.steps li {
-		counter-increment: step;
-		display: grid;
-		gap: 0.3rem;
-		padding-left: 2rem;
-		position: relative;
-	}
-
-	.steps li::before {
-		content: counter(step);
-		position: absolute;
-		left: 0;
-		top: 0.1rem;
-		width: 1.35rem;
-		height: 1.35rem;
-		border-radius: 50%;
-		background: var(--clay-bright);
-		border: 1px solid color-mix(in srgb, var(--sand-deep) 45%, transparent);
-		color: var(--text-muted);
-		font-size: 0.72rem;
-		font-weight: 700;
-		display: grid;
-		place-items: center;
-		box-shadow: var(--shadow-sm);
-	}
-
-	.steps strong {
-		font-size: 0.9rem;
-	}
-
-	.steps code {
-		font-family: var(--font-mono);
-		font-size: 0.76rem;
-		padding: 0.18rem 0.4rem;
-		background: var(--clay-bright);
-		border-radius: 8px;
-		border: 1px solid color-mix(in srgb, var(--sand-deep) 30%, transparent);
-		color: var(--text-muted);
-		word-break: break-all;
-	}
-
-	.steps .or {
-		color: var(--text-faint);
-		font-size: 0.85rem;
-		margin-inline: 0.25rem;
-	}
-
-	.steps span:not(.or) {
-		color: var(--text-muted);
-		font-size: 0.9rem;
 	}
 
 	.faq-wrap h2 {

@@ -24,7 +24,7 @@
 		</nav>
 
 		<div class="actions">
-			<a class="btn btn-primary btn-sm" href="#download">Download</a>
+			<a class="btn btn-primary btn-sm" href="#download">Get Tidy</a>
 			<button
 				type="button"
 				class="menu-btn"
@@ -56,7 +56,7 @@
 		top: 0;
 		z-index: 50;
 		height: var(--header-h);
-		/* Soft frosted sand — not glassmorphism chrome */
+		/* Soft frosted sand, not glassmorphism chrome */
 		background: color-mix(in srgb, var(--sand-light) 88%, transparent);
 		backdrop-filter: blur(14px) saturate(1.05);
 		border-bottom: 1px solid color-mix(in srgb, var(--sand-deep) 40%, transparent);

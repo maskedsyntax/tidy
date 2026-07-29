@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
 
-	/* A working recreation of the Tidy desktop UI — same three-pane shell,
-	   same rows, badges and toolbar as the app, tinted to the site's warm palette
+	/* A working recreation of the Tidy desktop UI: same three-pane shell,
+	   toolbar, rows and badges as the app, tinted to the site's warm palette
 	   so it sits on the page instead of punching a white hole in it. */
 
 	type Mode = 'paper' | 'power' | 'ai';
@@ -65,7 +65,6 @@
 		tasks.filter((t) => t.depth === 0 && (id === 'all' || t.list === id)).length;
 
 	const bothHidden = $derived(!listsOpen && !chatOpen);
-	const bothOpen = $derived(listsOpen && chatOpen);
 	const activeList = $derived(active === 'all' ? null : listById(active));
 	const title = $derived(activeList?.name ?? 'All Tasks');
 
@@ -74,7 +73,7 @@
 		if (t) t.done = !t.done;
 	}
 
-	function focusMode() {
+	function focusToggle() {
 		if (bothHidden) {
 			listsOpen = true;
 			chatOpen = true;
@@ -89,7 +88,7 @@
 	async function runDemo() {
 		if (ran || thinking) return;
 		ran = true;
-		messages = [{ role: 'user', text: 'Plan a Travel list — pack, flights, hotel.' }];
+		messages = [{ role: 'user', text: 'Plan a Travel list: pack, flights, hotel.' }];
 		thinking = true;
 		await new Promise((r) => setTimeout(r, 900));
 		thinking = false;
@@ -114,7 +113,7 @@
 			{ role: 'note', text: 'Added 5 tasks · nested 2 subtasks' },
 			{
 				role: 'assistant',
-				text: 'Created Travel with flights, hotel and a Packing group — passport, adapters and chargers nested underneath.'
+				text: 'Created Travel with flights, hotel and a Packing group, with passport, adapters and chargers nested underneath.'
 			}
 		];
 	}
@@ -136,12 +135,14 @@
 		infinity:
 			'<path d="M8.2 9.4c1.6 0 2.3 1.1 2.6 2.6.3 1.5 1 2.6 2.6 2.6a2.6 2.6 0 0 0 0-5.2c-1.6 0-2.3 1.1-2.6 2.6-.3 1.5-1 2.6-2.6 2.6a2.6 2.6 0 0 1 0-5.2z"/>',
 		sidebar: '<path d="M4 5.5h16v13H4z"/><path d="M10 5.5v13"/>',
+		collapseLeft: '<path d="M11.5 7l-5 5 5 5"/><path d="M18 7l-5 5 5 5"/>',
 		focus:
 			'<path d="M4.5 8.5V5h3.5"/><path d="M16 5h3.5v3.5"/><path d="M19.5 15.5V19H16"/><path d="M8 19H4.5v-3.5"/><circle cx="12" cy="12" r="2.2"/>',
-		sparkle: '<path d="M12 5.2l1.7 4.6 4.6 1.7-4.6 1.7-1.7 4.6-1.7-4.6-4.6-1.7 4.6-1.7z"/>',
+		columns: '<path d="M4 5.5h16v13H4z"/><path d="M9.3 5.5v13"/><path d="M14.7 5.5v13"/>',
 		search: '<circle cx="11" cy="11" r="5.8"/><path d="M19.5 19.5l-4.2-4.2"/>',
-		trash: '<path d="M5.5 7.5h13"/><path d="M9.5 7.5V5.5h5v2"/><path d="M7.5 7.5l.9 11h7.2l.9-11"/>',
+		refresh: '<path d="M19 12a7 7 0 1 1-2.4-5.3"/><path d="M19.2 5v4.2H15"/>',
 		tune: '<path d="M4 8h16"/><path d="M4 16h16"/><circle cx="9.5" cy="8" r="1.9"/><circle cx="15" cy="16" r="1.9"/>',
+		close: '<path d="M6.8 6.8l10.4 10.4"/><path d="M17.2 6.8L6.8 17.2"/>',
 		plus: '<path d="M12 5.5v13"/><path d="M5.5 12h13"/>',
 		up: '<path d="M12 19V6"/><path d="M6.5 11.5L12 6l5.5 5.5"/>',
 		gear: '<circle cx="12" cy="12" r="3"/><path d="M12 4v2.2M12 17.8V20M4 12h2.2M17.8 12H20M6.3 6.3l1.6 1.6M16.1 16.1l1.6 1.6M17.7 6.3l-1.6 1.6M7.9 16.1l-1.6 1.6"/>',
@@ -149,19 +150,20 @@
 	};
 </script>
 
-<div class="app" class:no-lists={!listsOpen} class:no-chat={!chatOpen}>
+<div class="app">
 	{#if listsOpen}
 		<aside class="pane sidebar">
 			<div class="pane-head">
 				<span class="pane-title">Lists</span>
 				<span class="spacer"></span>
-				<span class="kbd">⌘K</span>
+				<span class="chip">⌘K</span>
+				<span class="icon-btn"><svg viewBox="0 0 24 24">{@html ICONS.plus}</svg></span>
 				<button class="icon-btn" title="Hide lists" onclick={() => (listsOpen = false)}>
-					<svg viewBox="0 0 24 24">{@html ICONS.sidebar}</svg>
+					<svg viewBox="0 0 24 24">{@html ICONS.collapseLeft}</svg>
 				</button>
 			</div>
 			<div class="rule"></div>
-			<div class="side-label">LISTS</div>
+
 			<div class="side-scroll">
 				<button class="nav" class:sel={active === 'all'} onclick={() => (active = 'all')}>
 					<svg class="ico" viewBox="0 0 24 24">{@html ICONS.infinity}</svg>
@@ -175,54 +177,38 @@
 						<span class="count">{countFor(l.id)}</span>
 					</button>
 				{/each}
-				<div class="nav muted-row">
-					<svg class="ico" viewBox="0 0 24 24">{@html ICONS.plus}</svg>
-					<span class="nav-name">New List</span>
-				</div>
 			</div>
+
 			<div class="pane-foot">
 				<span class="icon-btn"><svg viewBox="0 0 24 24">{@html ICONS.gear}</svg></span>
 				<span class="icon-btn"><svg viewBox="0 0 24 24">{@html ICONS.sun}</svg></span>
-				<span class="spacer"></span>
-				<button
-					class="icon-btn"
-					title={chatOpen ? 'Hide assistant' : 'Show assistant'}
-					onclick={() => (chatOpen = !chatOpen)}
-				>
-					<svg viewBox="0 0 24 24">{@html ICONS.sparkle}</svg>
-				</button>
 			</div>
 		</aside>
 	{/if}
 
 	<section class="pane main">
 		<div class="toolbar">
+			{#if !listsOpen}
+				<button class="icon-btn" title="Show lists" onclick={() => (listsOpen = true)}>
+					<svg viewBox="0 0 24 24">{@html ICONS.sidebar}</svg>
+				</button>
+			{/if}
 			<button
 				class="icon-btn"
-				class:on={listsOpen}
-				title="Toggle lists"
-				onclick={() => (listsOpen = !listsOpen)}
+				class:on={bothHidden}
+				title={bothHidden ? 'Full mode' : 'Focus mode (tasks only)'}
+				onclick={focusToggle}
 			>
-				<svg viewBox="0 0 24 24">{@html ICONS.sidebar}</svg>
-			</button>
-			<button class="icon-btn" class:on={bothHidden} title="Focus mode" onclick={focusMode}>
-				<svg viewBox="0 0 24 24">{@html ICONS.focus}</svg>
-			</button>
-			<button
-				class="icon-btn"
-				class:on={chatOpen}
-				title="Toggle assistant"
-				onclick={() => (chatOpen = !chatOpen)}
-			>
-				<svg viewBox="0 0 24 24">{@html ICONS.sparkle}</svg>
+				<svg viewBox="0 0 24 24">{@html bothHidden ? ICONS.columns : ICONS.focus}</svg>
 			</button>
 
-			<svg class="ico title-ico" viewBox="0 0 24 24" style:color={activeList?.color ?? 'currentColor'}
+			<svg
+				class="ico title-ico"
+				viewBox="0 0 24 24"
+				style:color={activeList?.color ?? 'currentColor'}
 				>{@html activeList ? ICONS[activeList.icon] : ICONS.infinity}</svg
 			>
 			<span class="view-title">{title}</span>
-			{#if bothHidden}<span class="tag">Focus</span>{/if}
-			{#if bothOpen}<span class="tag">Full</span>{/if}
 
 			<span class="spacer"></span>
 			<label class="search">
@@ -272,15 +258,16 @@
 	{#if chatOpen}
 		<aside class="pane chat">
 			<div class="pane-head">
-				<svg class="ico accent" viewBox="0 0 24 24">{@html ICONS.sparkle}</svg>
+				<img class="ai-mark" src="/ai-mark.png" alt="" width="22" height="22" />
 				<span class="pane-title">Assistant</span>
 				<span class="spacer"></span>
+				<span class="model">llama-3.3-70b…</span>
 				<button class="icon-btn" title="Clear chat" onclick={reset}>
-					<svg viewBox="0 0 24 24">{@html ICONS.trash}</svg>
+					<svg viewBox="0 0 24 24">{@html ICONS.refresh}</svg>
 				</button>
 				<span class="icon-btn"><svg viewBox="0 0 24 24">{@html ICONS.tune}</svg></span>
 				<button class="icon-btn" title="Hide assistant" onclick={() => (chatOpen = false)}>
-					<svg viewBox="0 0 24 24">{@html ICONS.sidebar}</svg>
+					<svg viewBox="0 0 24 24">{@html ICONS.close}</svg>
 				</button>
 			</div>
 			<div class="rule"></div>
@@ -288,9 +275,9 @@
 			<div class="msgs">
 				{#if messages.length === 0}
 					<div class="chat-empty">
-						<svg class="ico big" viewBox="0 0 24 24">{@html ICONS.sparkle}</svg>
+						<img class="ai-mark big" src="/ai-mark.png" alt="" width="44" height="44" />
 						<p class="ce-title">Control Tidy with natural language</p>
-						<p class="ce-body">Try the prompt below — it really edits this workspace.</p>
+						<p class="ce-body">Try the prompt below. It really edits this workspace.</p>
 					</div>
 				{:else}
 					{#each messages as m}
@@ -306,7 +293,7 @@
 
 			{#if !ran}
 				<button class="prompt-chip" onclick={runDemo}>
-					“Plan a Travel list — pack, flights, hotel.”
+					“Plan a Travel list: pack, flights, hotel.”
 				</button>
 			{/if}
 
@@ -317,6 +304,11 @@
 				</button>
 			</div>
 		</aside>
+	{:else}
+		<!-- Floating assistant launcher, exactly as the app shows it when the pane is closed -->
+		<button class="fab" title="Assistant (⌘J)" onclick={() => (chatOpen = true)}>
+			<img src="/ai-mark.png" alt="Open assistant" width="44" height="44" />
+		</button>
 	{/if}
 </div>
 
@@ -334,6 +326,7 @@
 		--m-purple: #8f76ba;
 		--m-teal: #5c9aa6;
 
+		position: relative;
 		display: flex;
 		gap: 0.45rem;
 		padding: 0.45rem;
@@ -372,7 +365,7 @@
 	}
 
 	.chat {
-		width: 14.5rem;
+		width: 15rem;
 		flex-shrink: 0;
 	}
 
@@ -386,8 +379,8 @@
 	.pane-head {
 		display: flex;
 		align-items: center;
-		gap: 0.3rem;
-		padding: 0.55rem 0.5rem 0.5rem 0.7rem;
+		gap: 0.25rem;
+		padding: 0.5rem 0.45rem 0.5rem 0.7rem;
 	}
 
 	.pane-title {
@@ -404,17 +397,9 @@
 		background: var(--m-border);
 	}
 
-	.side-label {
-		padding: 0.6rem 0.85rem 0.35rem;
-		font-size: 0.6rem;
-		font-weight: 600;
-		letter-spacing: 0.06em;
-		color: var(--text-faint);
-	}
-
 	.side-scroll {
 		flex: 1;
-		padding: 0 0.45rem;
+		padding: 0.5rem 0.45rem;
 		overflow: hidden;
 	}
 
@@ -454,15 +439,6 @@
 		white-space: nowrap;
 	}
 
-	.muted-row {
-		color: var(--text-muted);
-		cursor: default;
-	}
-
-	.muted-row:hover {
-		background: transparent;
-	}
-
 	.count {
 		font-size: 0.7rem;
 		color: var(--text-muted);
@@ -472,7 +448,7 @@
 		display: flex;
 		align-items: center;
 		gap: 0.15rem;
-		padding: 0.5rem 0.55rem 0.6rem;
+		padding: 0.4rem 0.55rem 0.6rem;
 	}
 
 	/* Icons */
@@ -491,17 +467,16 @@
 		flex-shrink: 0;
 	}
 
-	.ico.accent {
-		color: var(--m-blue);
-	}
-
 	.icon-btn {
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		padding: 0.25rem;
+		width: 1.6rem;
+		height: 1.6rem;
+		flex-shrink: 0;
+		padding: 0;
 		border: 0;
-		border-radius: 7px;
+		border-radius: 6px;
 		background: transparent;
 		color: var(--text-muted);
 		cursor: pointer;
@@ -518,51 +493,68 @@
 		color: var(--text);
 	}
 
-	.kbd {
+	.chip {
+		display: inline-flex;
+		align-items: center;
+		height: 1.6rem;
+		padding: 0 0.4rem;
+		border-radius: 6px;
 		font-family: var(--font-mono);
-		font-size: 0.62rem;
+		font-size: 0.66rem;
 		font-weight: 600;
 		color: var(--text-muted);
-		padding: 0.1rem 0.25rem;
+	}
+
+	.ai-mark {
+		flex-shrink: 0;
+		border-radius: 50%;
+		width: 1.35rem;
+		height: 1.35rem;
+	}
+
+	.ai-mark.big {
+		width: 2.6rem;
+		height: 2.6rem;
+		margin: 0 auto 0.6rem;
+	}
+
+	.model {
+		font-size: 0.66rem;
+		color: var(--text-faint);
+		margin-right: 0.15rem;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		max-width: 5.5rem;
 	}
 
 	/* Toolbar */
 	.toolbar {
 		display: flex;
 		align-items: center;
-		gap: 0.2rem;
-		padding: 0.5rem 0.65rem 0.45rem;
+		gap: 0.25rem;
+		padding: 0.55rem 0.75rem 0.4rem;
 	}
 
 	.title-ico {
-		margin-left: 0.45rem;
+		margin-left: 0.5rem;
 		color: var(--text);
 	}
 
 	.view-title {
-		margin-left: 0.35rem;
+		margin-left: 0.4rem;
 		font-size: 0.88rem;
 		font-weight: 600;
 		letter-spacing: -0.01em;
-	}
-
-	.tag {
-		margin-left: 0.4rem;
-		padding: 0.1rem 0.35rem;
-		border-radius: 5px;
-		background: var(--m-hover);
-		font-size: 0.62rem;
-		font-weight: 600;
-		color: var(--text-muted);
 	}
 
 	.search {
 		display: flex;
 		align-items: center;
 		gap: 0.35rem;
-		width: 9.5rem;
-		padding: 0.32rem 0.5rem;
-		border-radius: 8px;
+		width: 10rem;
+		padding: 0.35rem 0.55rem;
+		border-radius: 9px;
 		background: var(--m-input);
 	}
 
@@ -586,7 +578,7 @@
 		color: var(--text-faint);
 	}
 
-	/* Task rows — plain rows with hover, exactly like the app */
+	/* Task rows: plain rows with hover, exactly like the app */
 	.rows {
 		flex: 1;
 		padding: 0.2rem 0.5rem;
@@ -681,12 +673,15 @@
 		color: var(--text-faint);
 	}
 
+	/* Add-task field is a filled rounded input in the app */
 	.composer {
 		display: flex;
 		align-items: center;
 		gap: 0.45rem;
-		padding: 0.55rem 1rem 0.65rem;
-		border-top: 1px solid var(--m-border);
+		margin: 0.35rem 0.6rem 0.6rem;
+		padding: 0.5rem 0.7rem;
+		border-radius: 10px;
+		background: var(--m-input);
 		font-size: 0.8rem;
 		color: var(--text-faint);
 	}
@@ -705,13 +700,6 @@
 		margin: auto;
 		text-align: center;
 		padding: 0.5rem;
-	}
-
-	.ico.big {
-		width: 1.6rem;
-		height: 1.6rem;
-		margin: 0 auto 0.5rem;
-		opacity: 0.55;
 	}
 
 	.ce-title {
@@ -776,19 +764,20 @@
 		background: color-mix(in srgb, var(--m-blue) 16%, transparent);
 	}
 
+	/* Composer is a pill with a soft circular send button */
 	.chat-composer {
 		display: flex;
 		align-items: center;
 		gap: 0.4rem;
-		padding: 0 0.6rem 0.6rem;
+		margin: 0 0.6rem 0.6rem;
+		padding: 0.3rem 0.3rem 0.3rem 0.65rem;
+		border-radius: 999px;
+		background: var(--m-input);
 	}
 
 	.fake-input {
 		flex: 1;
 		min-width: 0;
-		padding: 0.45rem 0.55rem;
-		border-radius: 9px;
-		background: var(--m-input);
 		font-size: 0.72rem;
 		color: var(--text-faint);
 		overflow: hidden;
@@ -799,19 +788,53 @@
 	.send {
 		display: grid;
 		place-items: center;
-		width: 1.85rem;
-		height: 1.85rem;
+		width: 1.7rem;
+		height: 1.7rem;
 		flex-shrink: 0;
 		border: 0;
-		border-radius: 8px;
-		background: var(--m-blue);
-		color: #fff;
+		border-radius: 50%;
+		background: color-mix(in srgb, var(--sand) 45%, var(--clay-bright));
+		color: var(--text-muted);
 		cursor: pointer;
+		transition: background 0.12s ease, color 0.12s ease;
+	}
+
+	.send:hover {
+		background: var(--m-sel);
+		color: var(--text);
 	}
 
 	.send svg {
-		width: 0.95rem;
-		height: 0.95rem;
+		width: 0.9rem;
+		height: 0.9rem;
 		stroke-width: 2.2;
+	}
+
+	/* Floating assistant launcher */
+	.fab {
+		position: absolute;
+		right: 0.85rem;
+		bottom: 0.85rem;
+		width: 2.75rem;
+		height: 2.75rem;
+		padding: 0;
+		border: 0;
+		border-radius: 50%;
+		background: none;
+		cursor: pointer;
+		box-shadow:
+			0 5px 16px color-mix(in srgb, var(--m-blue) 32%, transparent),
+			0 3px 10px rgba(74, 64, 52, 0.14);
+		transition: transform 0.15s ease;
+	}
+
+	.fab:hover {
+		transform: scale(1.05);
+	}
+
+	.fab img {
+		width: 100%;
+		height: 100%;
+		border-radius: 50%;
 	}
 </style>

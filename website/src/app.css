@@ -1,4 +1,4 @@
-/* Tidy site — aesthetics drawn from the app icon:
+/* Tidy site: aesthetics drawn from the app icon:
    warm sand light, soft clay surfaces, pastel list dots, quiet depth. */
 
 :root {
@@ -31,7 +31,7 @@
 	--personal: var(--dot-sage);
 	--learning: var(--dot-lilac);
 
-	/* Soft physical shadow — like the icon on the table */
+	/* Soft physical shadow, like the icon on the table */
 	--shadow-sm: 0 1px 2px rgba(74, 64, 52, 0.05), 0 2px 6px rgba(74, 64, 52, 0.04);
 	--shadow-md:
 		0 4px 12px rgba(74, 64, 52, 0.06),
@@ -48,7 +48,7 @@
 	--radius-xl: 32px;
 	--radius-pill: 999px;
 
-	/* System type — calm, app-like, not “landing page fonts” */
+	/* System type: calm, app-like, not “landing page fonts” */
 	--font-sans:
 		-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial,
 		sans-serif;
