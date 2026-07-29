@@ -30,6 +30,9 @@
 			<div>
 				<p class="col-title">Resources</p>
 				<ul>
+					<li><a href={site.support}>Support</a></li>
+					<li><a href={site.privacy}>Privacy Policy</a></li>
+					<li><a href={site.terms}>Terms of Use</a></li>
 					<li>
 						<a href={site.github} rel="noopener noreferrer" target="_blank">GitHub</a>
 					</li>

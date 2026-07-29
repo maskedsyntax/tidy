@@ -2,4 +2,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://tidy.app/sitemap.xml
+Sitemap: https://tidy.maskedsyntax.com/sitemap.xml

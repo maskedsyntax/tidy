@@ -12,3 +12,7 @@ PRODUCT_BUNDLE_IDENTIFIER = com.maskedsyntax.tidy
 
 // The copyright displayed in application information
 PRODUCT_COPYRIGHT = Copyright © 2026 com.maskedsyntax. All rights reserved.
+
+// Your Apple Developer Team ID (required for App Store signing).
+// Find it at https://developer.apple.com/account#MembershipDetailsCard
+DEVELOPMENT_TEAM = GVGJLY2H53
