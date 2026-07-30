@@ -21,10 +21,10 @@
 			<div>
 				<p class="col-title">Product</p>
 				<ul>
-					<li><a href="#spectrum">Spectrum</a></li>
-					<li><a href="#ai">AI assistant</a></li>
-					<li><a href="#features">Features</a></li>
-					<li><a href="#download">Download</a></li>
+					<li><a href="/#spectrum">Spectrum</a></li>
+					<li><a href="/#ai">AI assistant</a></li>
+					<li><a href="/#features">Features</a></li>
+					<li><a href="/#download">Download</a></li>
 				</ul>
 			</div>
 			<div>
@@ -36,7 +36,7 @@
 					<li>
 						<a href={site.github} rel="noopener noreferrer" target="_blank">GitHub</a>
 					</li>
-					<li><a href="#faq">FAQ</a></li>
+					<li><a href="/#faq">FAQ</a></li>
 					<li>
 						<a href="{site.github}/blob/master/LICENSE" rel="noopener noreferrer" target="_blank"
 							>MIT License</a

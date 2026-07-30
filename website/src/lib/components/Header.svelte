@@ -16,15 +16,15 @@
 		</a>
 
 		<nav class="nav" aria-label="Primary">
-			<a href="#spectrum" onclick={close}>Spectrum</a>
-			<a href="#ai" onclick={close}>AI</a>
-			<a href="#features" onclick={close}>Features</a>
-			<a href="#faq" onclick={close}>FAQ</a>
+			<a href="/#spectrum" onclick={close}>Spectrum</a>
+			<a href="/#ai" onclick={close}>AI</a>
+			<a href="/#features" onclick={close}>Features</a>
+			<a href="/#faq" onclick={close}>FAQ</a>
 			<a href={site.github} rel="noopener noreferrer" target="_blank" onclick={close}>GitHub</a>
 		</nav>
 
 		<div class="actions">
-			<a class="btn btn-primary btn-sm" href="#download">Get Tidy</a>
+			<a class="btn btn-primary btn-sm" href="/#download">Get Tidy</a>
 			<button
 				type="button"
 				class="menu-btn"
@@ -40,11 +40,11 @@
 
 	{#if open}
 		<nav id="mobile-nav" class="mobile" aria-label="Mobile">
-			<a href="#spectrum" onclick={close}>Spectrum</a>
-			<a href="#ai" onclick={close}>AI</a>
-			<a href="#features" onclick={close}>Features</a>
-			<a href="#download" onclick={close}>Download</a>
-			<a href="#faq" onclick={close}>FAQ</a>
+			<a href="/#spectrum" onclick={close}>Spectrum</a>
+			<a href="/#ai" onclick={close}>AI</a>
+			<a href="/#features" onclick={close}>Features</a>
+			<a href="/#download" onclick={close}>Download</a>
+			<a href="/#faq" onclick={close}>FAQ</a>
 			<a href={site.github} rel="noopener noreferrer" target="_blank" onclick={close}>GitHub</a>
 		</nav>
 	{/if}
